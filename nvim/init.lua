@@ -21,7 +21,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.scrolloff = 10
 vim.opt.cursorline = true
 
-vim.g.gruvbox_material_foreground = "material"
+vim.g.gruvbox_material_foreground = "original"
 vim.g.gruvbox_material_background = "medium"
 
 vim.api.nvim_create_autocmd('TextYankPost', {
