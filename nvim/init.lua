@@ -1,6 +1,3 @@
-vim.g.leader = ' '
-vim.g.mapleader = ' '
-
 require("config.lazy")
 require("config.keymaps")
 
@@ -35,5 +32,4 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 vim.cmd("colorscheme gruvbox-material")
 
 vim.o.updatetime = 250
--- vim.cmd([[autocmd CursorHold * lua vim.diagnostic.open_float(nil, {focus=false})]])
-
+vim.o.guicursor = ""

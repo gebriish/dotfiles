@@ -1,161 +1,74 @@
 return {
-	-- LSP config
-	{
-		"neovim/nvim-lspconfig",
-		dependencies = {
-			"williamboman/mason.nvim",
-			"williamboman/mason-lspconfig.nvim",
-			"hrsh7th/cmp-nvim-lsp",
-			{"onsails/lspkind.nvim",event = "InsertEnter"},
-		},
-		config = function()
-			require("mason").setup()
-			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "clangd", "pyright" },
-				automatic_installation = true,
-			})
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+      "onsails/lspkind.nvim",
+    },
+    config = function()
+      local lspconfig = require("lspconfig")
+      local mason = require("mason")
+      local mason_lspconfig = require("mason-lspconfig")
+      local lspkind = require("lspkind")
 
-			local lspconfig = require("lspconfig")
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      local capabilities = vim.lsp.protocol.make_client_capabilities()
+      capabilities.textDocument.formatting = {
+        dynamicRegistration = false,
+      }
 
-			-- Setup installed servers
-			require("mason-lspconfig").setup_handlers({
-				function(server_name)
-					lspconfig[server_name].setup({
-						capabilities = capabilities,
-					})
-				end,
-			})
+      mason.setup()
 
-			lspconfig.lua_ls.setup({
-				settings = {
-					Lua = {
-						diagnostics = {
-							globals = {"vim"},
-						}
-					}
-				}
-			})
+      mason_lspconfig.setup({
+        ensure_installed = { "clangd", "lua_ls" },
+        handlers = {
+          function(server_name)
+            local opts = {
+              capabilities = capabilities,
+							on_attach = function(client, bufnr)
+								vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+								vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
+								vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
+								vim.keymap.set("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Show references" })
+								vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
+								vim.keymap.set("n", "<leader>ls", vim.lsp.buf.document_symbol, { buffer = bufnr, desc = "Show document symbols" })
+								vim.keymap.set("n", "<leader>ws", vim.lsp.buf.workspace_symbol, { buffer = bufnr, desc = "Show workspace symbols" })
+								vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, { buffer = bufnr, desc = "Show line diagnostics" })
+								vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
+							end,
+            }
 
-			vim.diagnostic.config({
-				virtual_text = true,  -- show inline
-				signs = true,         -- show in gutter
-				underline = true,     -- underline problem areas
-				update_in_insert = false,
-				severity_sort = true,
-			})
+            if server_name == "lua_ls" then
+              opts.settings = {
+                Lua = {
+                  diagnostics = {
+                    globals = { "vim" },
+                  },
+                  workspace = {
+                    checkThirdParty = false,
+                    library = vim.api.nvim_get_runtime_file("", true),
+                  },
+                },
+              }
+            end
 
+            lspconfig[server_name].setup(opts)
+          end,
+        },
+      })
 
-			vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostics" })
+      vim.diagnostic.config({
+        virtual_text = true,
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+        float = {
+          border = "rounded",
+        },
+      })
 
-			local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
-			for type, icon in pairs(signs) do
-				local hl = "DiagnosticSign" .. type
-				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-			end
-		end,
-	},
-
-	-- Autocompletion
-	{
-		"hrsh7th/nvim-cmp",
-		event = "InsertEnter",
-		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-path",
-			{
-				"L3MON4D3/LuaSnip",
-				dependencies = { "rafamadriz/friendly-snippets" },
-				config = function()
-					require("luasnip.loaders.from_vscode").lazy_load()
-				end
-			},
-			"saadparwaiz1/cmp_luasnip",
-		},
-		config = function()
-			local cmp = require("cmp")
-			local lspkind = require("lspkind")
-
-			lspkind.init({
-				mode = 'symbol_text',
-				preset = 'codicons',
-
-				symbol_map = {
-					Text = "󰉿",
-					Method = "󰆧",
-					Function = "󰊕",
-					Constructor = "",
-					Field = "󰜢",
-					Variable = "󰀫",
-					Class = "󰠱",
-					Interface = "",
-					Module = "",
-					Property = "󰜢",
-					Unit = "󰑭",
-					Value = "󰎠",
-					Enum = "",
-					Keyword = "󰌋",
-					Snippet = "",
-					Color = "󰏘",
-					File = "󰈙",
-					Reference = "󰈇",
-					Folder = "󰉋",
-					EnumMember = "",
-					Constant = "󰏿",
-					Struct = "󰙅",
-					Event = "",
-					Operator = "󰆕",
-					TypeParameter = "",
-				},
-			})
-			cmp.setup({
-				window = {
-					completion = cmp.config.window.bordered({
-						border = "rounded",
-					}),
-					documentation = cmp.config.window.bordered({
-						border = "rounded",
-					})
-				},
-				snippet = {
-					expand = function(args)
-						require("luasnip").lsp_expand(args.body)
-					end,
-				},
-				mapping = cmp.mapping.preset.insert({
-					["<C-n>"] = cmp.mapping.select_next_item(),
-					["<C-p>"] = cmp.mapping.select_prev_item(),
-					["<CR>"] = cmp.mapping.confirm({ select = true }),
-					["<C-Space>"] = cmp.mapping.complete(),
-					["<Tab>"] = function(fallback)
-						if require("luasnip").expand_or_jumpable() then
-							require("luasnip").expand_or_jump()
-						else
-							fallback()
-						end
-					end,
-					["<S-Tab>"] = function(fallback)
-						if require("luasnip").jumpable(-1) then
-							require("luasnip").jump(-1)
-						else
-							fallback()
-						end
-					end,
-				}),
-				sources = cmp.config.sources({
-					{ name = "nvim_lsp" },
-					{ name = "luasnip" },
-					{ name = "buffer" },
-					{ name = "path" },
-				}),
-				formatting = {
-					format = lspkind.cmp_format({
-						mode = "symbol_text",
-						maxWidth = 50,
-						ellipsis_char = "...",
-					})
-				}
-			})
-		end,
-	},}
+      lspkind.init()
+    end,
+  },
+}
