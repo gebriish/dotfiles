@@ -1,21 +1,14 @@
 return {
-	"nvim-treesitter/nvim-treesitter", 
-	build = ":TSUpdate",
-	config = function() 
-		require'nvim-treesitter.configs'.setup {
-			-- A list of parser names, or "all" (the listed parsers MUST always be installed)
-			ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "cpp" },
-			-- Install parsers synchronously (only applied to `ensure_installed`)
-			sync_install = false,
-			-- Automatically install missing parsers when entering buffer
-			-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-			auto_install = false,
-			---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-			-- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
-			highlight = {
-				enable = true,
-				additional_vim_regex_highlighting = false,
-			},
-		}
-	end
+  'nvim-treesitter/nvim-treesitter',
+  build = ':TSUpdate',
+  main = 'nvim-treesitter.configs',
+  opts = {
+    ensure_installed = { 'bash', 'c', 'cpp', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+    auto_install = false,
+    highlight = {
+      enable = true,
+      additional_vim_regex_highlighting = { 'ruby' },
+    },
+    indent = { enable = true, disable = { 'ruby' } },
+  },
 }
