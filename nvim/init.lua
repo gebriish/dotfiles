@@ -49,7 +49,7 @@ map_set('v', "<A-j>", ":m '>+1<CR>gv=gv")
 map_set('n', '<leader>tn', ':tabnew<cr>')
 map_set('n', '<leader>bd', ':bdelete<cr>')
 map_set('n', '>', ':tabnext<cr>')
-map_set('n', '<', ':tabnext<cr>')
+map_set('n', '<', ':tabprev<cr>')
 
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
@@ -61,4 +61,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 require('config.lazy')
 
+vim.g.gruvbox_material_background = 'medium'
+vim.g.gruvbox_material_palette = 'material'
+vim.g.gruvbox_material_contrast = 'soft'
 vim.cmd("colorscheme gruvbox-material")

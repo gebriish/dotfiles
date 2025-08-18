@@ -173,9 +173,37 @@ return {
             },
           },
         },
+        ols = {
+        },
       }
 
+      -- Manual setup for OLS since it's not available through Mason
+      local lspconfig = require('lspconfig')
+      
+      -- Add custom OLS configuration if it doesn't exist
+      if not lspconfig.ols then
+        local configs = require('lspconfig.configs')
+        configs.ols = {
+          default_config = {
+            cmd = { 'ols' },
+            filetypes = { 'odin' },
+            root_dir = lspconfig.util.root_pattern('ols.json', '.git'),
+            single_file_support = true,
+          },
+        }
+      end
+
+      -- Setup OLS manually
+      lspconfig.ols.setup({
+        -- Add any specific OLS settings here if needed
+      })
+
       local ensure_installed = vim.tbl_keys(servers or {})
+      -- Remove 'ols' from ensure_installed since it's not available through Mason
+      ensure_installed = vim.tbl_filter(function(item)
+        return item ~= 'ols'
+      end, ensure_installed)
+      
       vim.list_extend(ensure_installed, {
         'stylua',
       })
@@ -186,6 +214,10 @@ return {
         automatic_installation = false,
         handlers = {
           function(server_name)
+            -- Skip OLS since we handle it manually
+            if server_name == 'ols' then
+              return
+            end
             local server = servers[server_name] or {}
             -- server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
