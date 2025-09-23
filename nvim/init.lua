@@ -32,36 +32,46 @@ vim.opt.splitbelow = true
 
 vim.opt.inccommand = 'split'
 
-local map_set = vim.keymap.set
+local keymap_set = vim.keymap.set
 
-map_set('n', '<leader>fe', vim.cmd.Ex)
-map_set('n', '<C-l>', '<C-w>l')
-map_set('n', '<C-k>', '<C-w>k')
-map_set('n', '<C-j>', '<C-w>j')
-map_set('n', '<C-h>', '<C-w>h')
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "netrw",
+  callback = function()
+    vim.opt_local.number = true
+    vim.opt_local.relativenumber = true
+  end,
+})
 
-map_set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-map_set('t', '<Esc><Esc>', '<C-\\><C-n>')
+keymap_set('n', '<leader>fe', vim.cmd.Ex)
+keymap_set('n', '<C-l>', '<C-w>l')
+keymap_set('n', '<C-k>', '<C-w>k')
+keymap_set('n', '<C-j>', '<C-w>j')
+keymap_set('n', '<C-h>', '<C-w>h')
 
-map_set('v', "<A-k>", ":m '<-2<CR>gv=gv")
-map_set('v', "<A-j>", ":m '>+1<CR>gv=gv")
+keymap_set('n', '<C-d>', '<C-d>zz')
+keymap_set('n', '<C-u>', '<C-u>zz')
 
-map_set('n', '<leader>tn', ':tabnew<cr>')
-map_set('n', '<leader>bd', ':bdelete<cr>')
-map_set('n', '>', ':tabnext<cr>')
-map_set('n', '<', ':tabprev<cr>')
+keymap_set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+keymap_set('t', '<Esc><Esc>', '<C-\\><C-n>')
+
+keymap_set('v', "<A-k>", ":m '<-2<CR>gv=gv")
+keymap_set('v', "<A-j>", ":m '>+1<CR>gv=gv")
+
+keymap_set('n', '<leader>tn', ':tabnew<cr>')
+keymap_set('n', '<leader>x', ':tabclose<cr>')
+keymap_set('n', '>', ':tabnext<cr>')
+keymap_set('n', '<', ':tabprev<cr>')
+
 
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+  group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
   callback = function()
     vim.hl.on_yank()
   end,
 })
 
+
 require('config.lazy')
 
-vim.g.gruvbox_material_background = 'medium'
-vim.g.gruvbox_material_palette = 'material'
-vim.g.gruvbox_material_contrast = 'soft'
 vim.cmd("colorscheme gruvbox-material")

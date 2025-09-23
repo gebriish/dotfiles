@@ -7,7 +7,7 @@ return {
 
 
   -- colorschemes
-  {  
-    'sainnhe/gruvbox-material' 
+  {
+    'sainnhe/gruvbox-material'
   },
 }
