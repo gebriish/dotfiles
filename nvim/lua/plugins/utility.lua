@@ -1,13 +1,12 @@
 return {
-	{ -- autopair
+
+	{ -- Autopairs
 		'windwp/nvim-autopairs',
 		event = "InsertEnter",
 		config = true
 	},
 
-
-  -- colorschemes
-  {
-    'sainnhe/gruvbox-material'
-  },
+	{ -- Colorscheme
+		'sainnhe/gruvbox-material'
+	},
 }
