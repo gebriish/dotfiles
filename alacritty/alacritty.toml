@@ -1,41 +1,51 @@
+[window]
+resize_increments = true
+
 [font]
 size = 10.0
 
 [font.normal]
-family = "Jetbrains Mono Nerd Font"
-style  = "Regular"
-
-[window]
-resize_increments = true
+family = "JetBrains Mono Nerd Font"
+style = "Regular"
 
 [colors.primary]
-background = "#062625"
-foreground = "#d0b892"
+background = "#131313"
+foreground = "#b99468"
 
 [colors.cursor]
-text = "#062625"
-cursor = "#ffffff"
+text = "#020202"
+cursor = "#00ff00"
 
 [colors.selection]
-text = "#d0b892"
-background = "#0000ff"
+text = "#b99468"
+background = "#303040"
 
 [colors.normal]
-black   = "#062625"  # background
-red     = "#F92672"
-green   = "#A6E22E"
-yellow  = "#E6DB74"
-blue    = "#66D9EF"
-magenta = "#FD5FF0"
-cyan    = "#A1EFE4"
-white   = "#d0b892"
+black   = "#020202"
+red     = "#bd2d2d"
+green   = "#6eb535"
+yellow  = "#f0c674"
+blue    = "#2895c7"
+magenta = "#c9598a"
+cyan    = "#03d3fc"
+white   = "#b99468"
 
 [colors.bright]
-black   = "#126367"  # line_fg / highlight-ish
+black   = "#222425"
 red     = "#ff0000"
-green   = "#8cde94"
-yellow  = "#ffaa00"
-blue    = "#AE81FF"
-magenta = "#FD5FF0"
-cyan    = "#87ffde"
-white   = "#ffffff"
+green   = "#a7eb13"
+yellow  = "#ffa900"
+blue    = "#0030b0"
+magenta = "#de2368"
+cyan    = "#8ffff2"
+white   = "#fcaa05"
+
+[colors.dim]
+black   = "#101010"
+red     = "#5c4d3c"
+green   = "#4e5e46"
+yellow  = "#63523d"
+blue    = "#404040"
+magenta = "#666666"
+cyan    = "#003a3a"
+white   = "#99856a"
