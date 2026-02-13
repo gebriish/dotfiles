@@ -3,8 +3,10 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
-vim.opt.number = true
-vim.opt.relativenumber = true
+------------------------------------------------------------
+
+vim.opt.number = false
+vim.opt.relativenumber = false
 vim.opt.wrap = false
 
 vim.opt.tabstop = 4
@@ -29,6 +31,10 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.inccommand = 'split'
 
+vim.opt.termguicolors = true vim.opt.signcolumn = "yes" vim.opt.cursorline = true vim.opt.scrolloff = 8 vim.opt.sidescrolloff = 8
+
+------------------------------------------------------------
+
 vim.api.nvim_create_autocmd('FileType', {
 	pattern = 'netrw',
 	callback = function()
@@ -37,36 +43,42 @@ vim.api.nvim_create_autocmd('FileType', {
 	end,
 })
 
+vim.g.netrw_banner = 0
+vim.g.netrw_browse_split = 0
+vim.g.netrw_altv = 1
+
 ------------------------------------------------------------
 
 local keymap_set = vim.keymap.set
 
--- Window navigation
 keymap_set('n', '<leader>fe', vim.cmd.Ex)
+
+keymap_set('n', '<leader><leader>', function()
+	vim.cmd("set number!")
+	vim.cmd("set relativenumber!")
+end)
+
 keymap_set('n', '<C-l>', '<C-w>l')
 keymap_set('n', '<C-k>', '<C-w>k')
 keymap_set('n', '<C-j>', '<C-w>j')
 keymap_set('n', '<C-h>', '<C-w>h')
 
--- Centered scroll
 keymap_set('n', '<C-d>', '<C-d>zz')
 keymap_set('n', '<C-u>', '<C-u>zz')
 
--- Clear highlights
 keymap_set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 keymap_set('t', '<Esc><Esc>', '<C-\\><C-n>')
 
--- Move lines
 keymap_set('v', "<A-k>", ":m '<-2<CR>gv=gv")
 keymap_set('v', "<A-j>", ":m '>+1<CR>gv=gv")
 
--- Tabs
 keymap_set('n', '<leader>tn', ':tabnew<cr>')
 keymap_set('n', '<leader>x', ':tabclose<cr>')
 keymap_set('n', '>', ':tabnext<cr>')
 keymap_set('n', '<', ':tabprev<cr>')
 
--- Telescope
+------------------------------------------------------------
+
 keymap_set('n', '<leader>ff', '<cmd>Telescope find_files<CR>')
 keymap_set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>')
 keymap_set('n', '<leader>fb', '<cmd>Telescope buffers<CR>')
@@ -77,7 +89,6 @@ keymap_set('n', '<leader>fs', '<cmd>Telescope current_buffer_fuzzy_find<CR>')
 ------------------------------------------------------------
 
 vim.api.nvim_create_autocmd('TextYankPost', {
-	desc = 'Highlight when yanking (copying) text',
 	group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
 	callback = function()
 		vim.hl.on_yank()
@@ -88,28 +99,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-	if vim.v.shell_error ~= 0 then
-		vim.api.nvim_echo({
-			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-			{ out, "WarningMsg" },
-			{ "\nPress any key to exit..." },
-		}, true, {})
-		vim.fn.getchar()
-		os.exit(1)
-	end
+	vim.fn.system({
+		"git", "clone", "--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable", lazypath
+	})
 end
-
 vim.opt.rtp:prepend(lazypath)
 
 ------------------------------------------------------------
 
 require('lazy').setup({
-	{
-		'RostislavArts/naysayer.nvim'
-	}, 
-
 	{
 		'windwp/nvim-autopairs',
 		event = "InsertEnter",
@@ -118,7 +118,6 @@ require('lazy').setup({
 
 	{
 		'nvim-telescope/telescope.nvim',
-		enabled = true,
 		event = 'VimEnter',
 		dependencies = {
 			'nvim-lua/plenary.nvim',
@@ -132,17 +131,22 @@ require('lazy').setup({
 			{ 'nvim-telescope/telescope-ui-select.nvim' },
 		},
 		config = function()
-			require('telescope').setup {
+			local telescope = require('telescope')
+			telescope.setup {
+				defaults = {
+				},
+				pickers = {
+					colorscheme = { enable_preview = true },
+				},
 				extensions = {
-					['ui-select'] = {
-						require('telescope.themes').get_dropdown(),
-					},
+					['ui-select'] = require('telescope.themes').get_dropdown(),
 				},
 			}
-			pcall(require('telescope').load_extension, 'fzf')
-			pcall(require('telescope').load_extension, 'ui-select')
+			pcall(telescope.load_extension, 'fzf')
+			pcall(telescope.load_extension, 'ui-select')
 		end,
 	},
+
 
 	{
 		'neovim/nvim-lspconfig',
@@ -156,9 +160,10 @@ require('lazy').setup({
 			local border = "rounded"
 
 			vim.lsp.handlers["textDocument/hover"] =
-			vim.lsp.with(vim.lsp.handlers.hover, { border = border })
+				vim.lsp.with(vim.lsp.handlers.hover, { border = border })
+
 			vim.lsp.handlers["textDocument/signatureHelp"] =
-			vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
+				vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
 
 			vim.diagnostic.config({
 				virtual_text = true,
@@ -172,18 +177,16 @@ require('lazy').setup({
 				group = vim.api.nvim_create_augroup('lsp-attach', { clear = true }),
 				callback = function(event)
 					local buf = event.buf
-					local map = function(keys, func, desc)
-						vim.keymap.set('n', keys, func, { buffer = buf, desc = 'LSP: ' .. desc })
+					local map = function(keys, func)
+						vim.keymap.set('n', keys, func, { buffer = buf })
 					end
 
-					map('grn', vim.lsp.buf.rename, 'Rename')
-					map('gra', vim.lsp.buf.code_action, 'Code Action')
-					map('grD', vim.lsp.buf.declaration, 'Goto Declaration')
-					map('grd', vim.lsp.buf.definition, 'Goto Definition')
+					map('grn', vim.lsp.buf.rename)
+					map('gra', vim.lsp.buf.code_action)
+					map('grD', vim.lsp.buf.declaration)
+					map('grd', vim.lsp.buf.definition)
 
-					map('ge', vim.diagnostic.open_float, 'Show Error')
-					map('[d', vim.diagnostic.goto_prev, 'Prev Diagnostic')
-					map(']d', vim.diagnostic.goto_next, 'Next Diagnostic')
+					map('ge', vim.diagnostic.open_float)
 				end,
 			})
 
@@ -217,19 +220,9 @@ require('lazy').setup({
 		lazy = false,
 		build = ":TSUpdate",
 	},
-
-}, {
-	ui = {
-		icons = vim.g.have_nerd_font and {} or {
-			cmd = '⌘', config = '🛠', event = '📅', ft = '📂',
-			init = '⚙', keys = '🗝', plugin = '🔌', runtime = '💻',
-			require = '🌙', source = '📄', start = '🚀', task = '📌', lazy = '💤 ',
-		},
-	},
 })
 
 ------------------------------------------------------------
-vim.cmd("colorscheme naysayer")
 
 require("nvim-treesitter.configs").setup({
 	ensure_installed = {
@@ -239,3 +232,6 @@ require("nvim-treesitter.configs").setup({
 	highlight = { enable = true },
 	indent = { enable = true },
 })
+
+vim.cmd("colorscheme my_theme")
+
