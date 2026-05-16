@@ -1,8 +1,8 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
-vim.opt.number = false
-vim.opt.relativenumber = false
+vim.opt.number = true
+vim.opt.relativenumber = true
 vim.opt.wrap = false
 
 vim.opt.tabstop = 4
@@ -29,7 +29,14 @@ end)
 local map = vim.keymap.set
 
 map('n', '<leader>fe', vim.cmd.Ex)
-map('n', '<leader><leader>', function() vim.opt.number = not vim.opt.number:get() end)
+map(
+	'n', 
+	'<leader><leader>',
+	function()
+		vim.opt.number = not vim.opt.number:get()
+		vim.opt.relativenumber = not vim.opt.relativenumber:get()
+	end
+)
 
 map('n', '<C-h>', '<C-w>h')
 map('n', '<C-j>', '<C-w>j')
@@ -109,19 +116,19 @@ require('lazy').setup({
     },
 
     -- Treesitter
-    {
-        'nvim-treesitter/nvim-treesitter',
-        build = ":TSUpdate",
-        config = function()
-            require("nvim-treesitter.configs").setup({
-                ensure_installed = {
-                    "lua", "c", "cpp", "python", "bash", "javascript"
-                },
-                highlight = { enable = true },
-                indent = { enable = true },
-            })
-        end,
-    },
+	{
+		'nvim-treesitter/nvim-treesitter',
+		build = ":TSUpdate",
+		config = function()
+			require("nvim-treesitter.configs").setup({
+				ensure_installed = {
+					"lua", "c", "cpp", "python", "bash", "javascript"
+				},
+				highlight = { enable = true },
+				indent = { enable = true },
+			})
+		end,
+	},
 
 
     -- LSP
@@ -162,7 +169,7 @@ require('lazy').setup({
             local servers = {
                 clangd = {},
                 ols = {},
-				zls = {}
+				zls = {},
             }
 
             require('mason-tool-installer').setup({
@@ -177,4 +184,4 @@ require('lazy').setup({
     },
 })
 
-vim.cmd.colorscheme('jblowtheme')
+vim.cmd.colorscheme('gebtheme')
